@@ -179,10 +179,6 @@ func (esgs *expressionSQLGeneratorSuite) TestGenerate_IntTypes() {
 		int16(10),
 		int32(10),
 		int64(10),
-		uint(10),
-		uint16(10),
-		uint32(10),
-		uint64(10),
 	}
 	for _, i := range ints {
 		esgs.assertCases(
@@ -195,6 +191,27 @@ func (esgs *expressionSQLGeneratorSuite) TestGenerate_IntTypes() {
 		sqlgen.NewExpressionSQLGenerator("test", sqlgen.DefaultDialectOptions()),
 		expressionTestCase{val: &i, sql: "0"},
 		expressionTestCase{val: &i, sql: "?", isPrepared: true, args: []interface{}{i}},
+	)
+}
+
+func (esgs *expressionSQLGeneratorSuite) TestGenerate_UintTypes() {
+	var u uint64
+	esgs.assertCases(
+		sqlgen.NewExpressionSQLGenerator("test", sqlgen.DefaultDialectOptions()),
+		expressionTestCase{val: uint(65535), sql: "65535"},
+		expressionTestCase{val: uint(65535), sql: "?", isPrepared: true, args: []interface{}{uint64(65535)}},
+
+		expressionTestCase{val: uint16(65535), sql: "65535"},
+		expressionTestCase{val: uint16(65535), sql: "?", isPrepared: true, args: []interface{}{uint64(65535)}},
+
+		expressionTestCase{val: uint32(4294967295), sql: "4294967295"},
+		expressionTestCase{val: uint32(4294967295), sql: "?", isPrepared: true, args: []interface{}{uint64(4294967295)}},
+
+		expressionTestCase{val: uint64(18446744073709551615), sql: "18446744073709551615"},
+		expressionTestCase{val: uint64(18446744073709551615), sql: "?", isPrepared: true, args: []interface{}{uint64(18446744073709551615)}},
+
+		expressionTestCase{val: &u, sql: "0"},
+		expressionTestCase{val: &u, sql: "?", isPrepared: true, args: []interface{}{u}},
 	)
 }
 
