@@ -1,7 +1,9 @@
 package exp
 
 type (
-	doNothingConflict struct{}
+	doNothingConflict struct {
+		cols ColumnListExpression
+	}
 	// ConflictUpdate is the struct that represents the UPDATE fragment of an
 	// INSERT ... ON CONFLICT/ON DUPLICATE KEY DO UPDATE statement
 	conflictUpdate struct {
@@ -14,7 +16,7 @@ type (
 // Creates a conflict struct to be passed to InsertConflict to ignore constraint errors
 //
 //	InsertConflict(DoNothing(),...) -> INSERT INTO ... ON CONFLICT DO NOTHING
-func NewDoNothingConflictExpression() ConflictExpression {
+func NewDoNothingConflictExpression() ConflictNothingExpression {
 	return &doNothingConflict{}
 }
 
@@ -28,6 +30,15 @@ func (c doNothingConflict) Clone() Expression {
 
 func (c doNothingConflict) Action() ConflictAction {
 	return DoNothingConflictAction
+}
+
+func (c *doNothingConflict) SetCols(cl ColumnListExpression) ConflictNothingExpression {
+	c.cols = cl
+	return c
+}
+
+func (c doNothingConflict) Cols() ColumnListExpression {
+	return c.cols
 }
 
 // Creates a ConflictUpdate struct to be passed to InsertConflict

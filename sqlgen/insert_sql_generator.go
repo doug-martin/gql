@@ -175,6 +175,12 @@ func (isg *insertSQLGenerator) onConflictSQL(b sb.SQLBuilder, o exp.ConflictExpr
 			}
 		}
 		isg.onConflictDoUpdateSQL(b, t)
+	case exp.ConflictNothingExpression:
+		cols := t.Cols()
+		if isg.DialectOptions().SupportsConflictTarget && cols != nil {
+			isg.ConflictTargetSQL(b, cols)
+		}
+		b.Write(isg.DialectOptions().ConflictDoNothingFragment)
 	default:
 		b.Write(isg.DialectOptions().ConflictDoNothingFragment)
 	}

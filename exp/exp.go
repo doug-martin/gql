@@ -275,6 +275,11 @@ type (
 		Expression
 		Action() ConflictAction
 	}
+	ConflictNothingExpression interface {
+		ConflictExpression
+		SetCols(cl ColumnListExpression) ConflictNothingExpression
+		Cols() ColumnListExpression
+	}
 	ConflictUpdateExpression interface {
 		ConflictExpression
 		TargetColumn() string
