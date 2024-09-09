@@ -15,7 +15,7 @@ import (
 
 const schema = `
 		DROP TABLE IF EXISTS "user_role";
-		DROP TABLE IF EXISTS "goqu_user";	
+		DROP TABLE IF EXISTS "goqu_user";
 		CREATE  TABLE "goqu_user" (
 			"id" SERIAL PRIMARY KEY NOT NULL,
 			"first_name" VARCHAR(45) NOT NULL,
@@ -27,7 +27,7 @@ const schema = `
 			"user_id" BIGINT NOT NULL REFERENCES goqu_user(id) ON DELETE CASCADE,
 			"name" VARCHAR(45) NOT NULL,
 			"created" TIMESTAMP NOT NULL DEFAULT now()
-		); 
+		);
     `
 
 const defaultDBURI = "postgres://postgres:@localhost:5435/goqupostgres?sslmode=disable"
@@ -966,6 +966,16 @@ func ExampleSelectDataset_CrossJoin() {
 	// SELECT * FROM "test" CROSS JOIN "test2"
 	// SELECT * FROM "test" CROSS JOIN (SELECT * FROM "test2" WHERE ("amount" > 0))
 	// SELECT * FROM "test" CROSS JOIN (SELECT * FROM "test2" WHERE ("amount" > 0)) AS "t"
+}
+
+func ExampleSelectDataset_CustomJoin() {
+	join := goqu.L("ARRAY JOIN tags").As("tag")
+
+	sql, _, _ := goqu.From("test").CustomJoin(join).ToSQL()
+	fmt.Println(sql)
+
+	// Output:
+	// SELECT * FROM "test" ARRAY JOIN tags AS tag
 }
 
 func ExampleSelectDataset_FromSelf() {

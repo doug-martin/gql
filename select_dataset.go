@@ -348,6 +348,11 @@ func (sd *SelectDataset) CrossJoin(table exp.Expression) *SelectDataset {
 	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.CrossJoinType, table))
 }
 
+// Adds a custom join clause. See examples
+func (sd *SelectDataset) CustomJoin(expression exp.Expression) *SelectDataset {
+	return sd.joinTable(exp.NewUnConditionedJoinExpression(exp.CustomJoinType, expression))
+}
+
 // Joins this Datasets table with another
 func (sd *SelectDataset) joinTable(join exp.JoinExpression) *SelectDataset {
 	return sd.copy(sd.clauses.JoinsAppend(join))

@@ -216,6 +216,7 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 	opts.JoinTypeLookup = map[exp.JoinType][]byte{
 		exp.LeftJoinType:    []byte(" left join "),
 		exp.NaturalJoinType: []byte(" natural join "),
+		exp.CustomJoinType:  []byte(" "),
 	}
 
 	sc := exp.NewSelectClauses().SetFrom(exp.NewColumnListExpression("test"))
@@ -224,6 +225,7 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 	cjo := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinOnCondition(exp.Ex{"a": "foo"}))
 	cju := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinUsingCondition("a"))
 	rj := exp.NewConditionedJoinExpression(exp.RightJoinType, ti, exp.NewJoinUsingCondition(exp.NewIdentifierExpression("", "", "a")))
+	cj := exp.NewUnConditionedJoinExpression(exp.CustomJoinType, goqu.L("ARRAY JOIN tags").As("tag"))
 	badJoin := exp.NewConditionedJoinExpression(exp.LeftJoinType, ti, exp.NewJoinUsingCondition())
 
 	expectedRjError := "goqu: dialect does not support RightJoinType"
@@ -253,6 +255,10 @@ func (ssgs *selectSQLGeneratorSuite) TestGenerate_withJoin() {
 			sql:        `SELECT * FROM "test" natural join "test2" left join "test2" on ("a" = ?) left join "test2" using ("a")`,
 			isPrepared: true,
 			args:       []interface{}{"foo"},
+		},
+		selectTestCase{
+			clause: sc.JoinsAppend(cj),
+			sql:    `SELECT * FROM "test" ARRAY JOIN tags AS "tag"`,
 		},
 
 		selectTestCase{clause: sc.JoinsAppend(rj), err: expectedRjError},

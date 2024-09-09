@@ -533,6 +533,7 @@ const (
 	NaturalRightJoinType
 	NaturalFullJoinType
 	CrossJoinType
+	CustomJoinType
 
 	UsingJoinCondType JoinConditionType = iota
 	OnJoinCondType
