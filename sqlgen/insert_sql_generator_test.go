@@ -333,33 +333,33 @@ func (igs *insertSQLGeneratorSuite) TestGenerate_onConflict() {
 
 		insertTestCase{
 			clause: icDu,
-			sql:    `insert ignore into "test" ("a") VALUES ('a1') on conflict (test) do update set "a"='b'`,
+			sql:    `INSERT INTO "test" ("a") VALUES ('a1') on conflict (test) do update set "a"='b'`,
 		},
 		insertTestCase{
 			clause:     icDu,
-			sql:        `insert ignore into "test" ("a") VALUES (?) on conflict (test) do update set "a"=?`,
+			sql:        `INSERT INTO "test" ("a") VALUES (?) on conflict (test) do update set "a"=?`,
 			isPrepared: true,
 			args:       []interface{}{"a1", "b"},
 		},
 
 		insertTestCase{
 			clause: icDoc,
-			sql:    `insert ignore into "test" ("a") VALUES ('a1') on conflict on constraint test do update set "a"='b'`,
+			sql:    `INSERT INTO "test" ("a") VALUES ('a1') on conflict on constraint test do update set "a"='b'`,
 		},
 		insertTestCase{
 			clause:     icDoc,
-			sql:        `insert ignore into "test" ("a") VALUES (?) on conflict on constraint test do update set "a"=?`,
+			sql:        `INSERT INTO "test" ("a") VALUES (?) on conflict on constraint test do update set "a"=?`,
 			isPrepared: true,
 			args:       []interface{}{"a1", "b"},
 		},
 
 		insertTestCase{
 			clause: icDuw,
-			sql:    `insert ignore into "test" ("a") VALUES ('a1') on conflict (test) do update set "a"='b' WHERE ("foo" IS TRUE)`,
+			sql:    `INSERT INTO "test" ("a") VALUES ('a1') on conflict (test) do update set "a"='b' WHERE ("foo" IS TRUE)`,
 		},
 		insertTestCase{
 			clause:     icDuw,
-			sql:        `insert ignore into "test" ("a") VALUES (?) on conflict (test) do update set "a"=? WHERE ("foo" IS TRUE)`,
+			sql:        `INSERT INTO "test" ("a") VALUES (?) on conflict (test) do update set "a"=? WHERE ("foo" IS TRUE)`,
 			isPrepared: true,
 			args:       []interface{}{"a1", "b"},
 		},
@@ -377,6 +377,22 @@ func (igs *insertSQLGeneratorSuite) TestGenerate_onConflict() {
 		sqlgen.NewInsertSQLGenerator("test", opts),
 		insertTestCase{clause: icDuw, err: expectedErr},
 		insertTestCase{clause: icDuw, err: expectedErr, isPrepared: true},
+	)
+
+	opts.InsertIgnoreClause = []byte("INSERT IGNORE INTO")
+	opts.ConflictFragment = []byte("")
+	opts.ConflictDoUpdateFragment = []byte(" ON DUPLICATE KEY UPDATE ")
+	opts.ConflictDoNothingFragment = []byte("")
+	opts.SupportsConflictTarget = false
+	igs.assertCases(
+		sqlgen.NewInsertSQLGenerator("test", opts),
+		insertTestCase{clause: icDn, sql: `INSERT IGNORE INTO "test" ("a") VALUES ('a1')`},
+		insertTestCase{
+			clause:     icDu,
+			sql:        `INSERT INTO "test" ("a") VALUES (?) ON DUPLICATE KEY UPDATE "a"=?`,
+			isPrepared: true,
+			args:       []interface{}{"a1", "b"},
+		},
 	)
 }
 
